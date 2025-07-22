@@ -5,7 +5,7 @@ export class BaseController {
         this.model = model;
     }
 
-    async create(req, res) {
+    create = async(req, res) => {
         try {
             const data = await this.model.create(req.body);
             return res.status(201).json({
@@ -14,17 +14,17 @@ export class BaseController {
                 data
             })
         } catch (error) {
+            console.log(error);
             return res.status(500).json({
                 statusCode: 500,
                 message: error.message || 'Internal server error'
-            })
+            });
         }
-    }
+    };
 
-    async findAll(req, res) {
+    findAll = async(req, res) => {
         try {
             const data = await this.model.find();
-
             return res.status(200).json({
                 statusCode: 200,
                 message: 'succes',
@@ -38,22 +38,26 @@ export class BaseController {
         }
     }
 
-    async findById(req, res) {
+    findById = async(req, res) => {
         try {
             const id = req.params?.id;
+
             if (!isValidObjectId(id)) {
                 return res.status(400).json({
                     statusCode: 400,
                     message: 'Invalid ObjektId'
                 });
             }
+
             const data = await this.model.findById(id);
+
             if (!data) {
                 return res.status(404).json({
                     statusCode: 404,
                     message: 'not found'
                 });
             }
+
             return res.status(200).json({
                 statusCode: 200,
                 message: 'succes',
@@ -67,16 +71,22 @@ export class BaseController {
         }
     }
 
-    async update(req, res) {
+    update = async(req, res) => {
         try {
             const id = req.params?.id;
+
             if (!isValidObjectId(id)) {
                 return res.status(400).json({
                     statusCode: 404,
                     message: 'Invalid objectId'
                 });
             }
-            const data = await this.model.findByIdAndUpdate(req.params?.id, req.body, { new: true });
+
+            const data = await this.model.findByIdAndUpdate(req.params?.id, req.body, {
+                new: true,
+                runValidators: true
+            });
+
             if (!data) {
                 return res.status(404).json({
                     statusCode: 404,
@@ -97,16 +107,19 @@ export class BaseController {
         }
     }
 
-    async delete(req, res) {
+    delete = async(req, res) => {
         try {
             const id = req.params?.id;
+
             if (!isValidObjectId(id)) {
                 return res.status(400).json({
                     statusCode: 404,
                     message: 'Invalid objectId'
                 });
             }
+
             const data = await this.model.findByIdAndUpdate(id);
+
             if (!data) {
                 return res.status(404).json({
                     statusCode: 404,
@@ -117,10 +130,13 @@ export class BaseController {
             return res.status(200).json({
                 statusCode: 200,
                 message: 'success',
-                data
+                data: {}
             });
         } catch (error) {
-
+            return res.status(500).json({
+                statusCode: 500,
+                message: error.message || "Internal server error",
+            });
         }
     }
 }

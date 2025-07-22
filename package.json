@@ -4,7 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/main.js"
+    "dev": "node --watch src/main.js",
+    "superadmin": "node src/helpers/create-super-admin.js"
   },
   "keywords": [],
   "author": "",

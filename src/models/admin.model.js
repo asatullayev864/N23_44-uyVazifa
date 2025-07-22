@@ -25,4 +25,5 @@ const adminSchema = new Schema({
     versionKey: false
 });
 
-export default model('Admin', adminSchema);
+const Admin = model('Admin', adminSchema);
+export default Admin;
