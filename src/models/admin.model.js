@@ -19,6 +19,10 @@ const adminSchema = new Schema({
         type: String,
         enum: ['SUPERADMIN', 'ADMIN'],
         default: 'ADMIN'
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     }
 }, {
     timestamps: true,
