@@ -2,23 +2,16 @@ import Admin from '../models/admin.model.js';
 import { BaseController } from './base.controller.js';
 import crypto from '../utils/Crypto.js';
 import validator from '../validation/adminValidation.js';
-import jwt from 'jsonwebtoken';
 import config from '../config/index.js';
+import token from '../utils/Token.js'; // ✅ token util import
 
 class AdminController extends BaseController {
     constructor() {
         super(Admin);
     }
-
+    // Admin create qilish 
     async createAdmin(req, res) {
         try {
-            const { error, value } = validator.create(req.body);
-            if (error) {
-                return res.status(422).json({
-                    statusCode: 422,
-                    message: error?.details[0]?.message ?? 'Error input validation'
-                });
-            }
             const { name, email, password, role } = req.body;
 
             const existsName = await Admin.findOne({ name });
@@ -33,7 +26,7 @@ class AdminController extends BaseController {
             if (existsEmail) {
                 return res.status(409).json({
                     statusCode: 409,
-                    message: 'Email addres already exists'
+                    message: 'Email address already exists'
                 });
             }
 
@@ -44,11 +37,12 @@ class AdminController extends BaseController {
                 password: hashedPassword,
                 role
             });
+
             return res.status(201).json({
                 statusCode: 201,
                 message: 'success',
                 data: admin
-            })
+            });
         } catch (error) {
             return res.status(500).json({
                 statusCode: 500,
@@ -57,16 +51,9 @@ class AdminController extends BaseController {
         }
     }
 
-    // Data bazada bor ma'lumotlarni korish [ signIn ]
+    // Tizimga kirish
     async signIn(req, res) {
         try {
-            const { error } = validator.signin(req.body);
-            if (error) {
-                return res.status(422).json({
-                    statusCode: 422,
-                    message: error?.details[0]?.message ?? 'Error input validation'
-                });
-            }
             const { name, password } = req.body;
             const admin = await Admin.findOne({ name });
             if (!admin) {
@@ -81,30 +68,29 @@ class AdminController extends BaseController {
                 return res.status(400).json({
                     statusCode: 400,
                     message: 'Username or password incorrect'
-                })
+                });
             }
 
             const payload = {
-                id: admin._id, role: admin.role, isActive: admin.isActive
+                id: admin._id,
+                role: admin.role,
+                isActive: admin.isActive
             };
-            const accestoken = jwt.sign(payload, 'judayamYashirinKalit', {
-                expiresIn: '24h'
-            });
 
-            const refreshToken = jwt.sign(payload, 'judayamYashirinKalit2', {
-                expiresIn: '30h'
-            });
+            const accessToken = token.generateAccessToken(payload);
+            const refreshToken = token.generateRefreshToken(payload);
 
             res.cookie('refreshTokenAdmin', refreshToken, {
                 httpOnly: true,
-                secure: true,
+                secure: process.env.NODE_ENV === 'production',
                 maxAge: 30 * 24 * 60 * 60 * 1000
-            })
-            res.status(200).json({
+            });
+
+            return res.status(200).json({
                 statusCode: 200,
                 message: 'success',
                 data: {
-                    token: accestoken,
+                    token: accessToken,
                     admin
                 }
             });
@@ -116,9 +102,10 @@ class AdminController extends BaseController {
         }
     }
 
+    // Yangi accessToken olish
     async generateNewToken(req, res) {
         try {
-            const refreshToken = req.cookie?.refreshTokenAdmin;
+            const refreshToken = req.cookies?.refreshTokenAdmin;
             if (!refreshToken) {
                 return res.status(401).json({
                     statusCode: 401,
@@ -130,7 +117,7 @@ class AdminController extends BaseController {
             if (!verifiedToken) {
                 return res.status(401).json({
                     statusCode: 401,
-                    message: 'Refresh token expire'
+                    message: 'Refresh token expired or invalid'
                 });
             }
 
@@ -143,10 +130,13 @@ class AdminController extends BaseController {
             }
 
             const payload = {
-                id: admin._id, role: admin.role, isActive: admin.isActive
-            }
+                id: admin._id,
+                role: admin.role,
+                isActive: admin.isActive
+            };
 
-            const accessToken = token.generateAccessToken(payload);
+            const accessToken = token.generateAccesToken(payload);
+
             return res.status(200).json({
                 statusCode: 200,
                 message: 'success',
@@ -162,6 +152,7 @@ class AdminController extends BaseController {
         }
     }
 
+    // Tizimdan chiqish
     async signOut(req, res) {
         try {
             const refreshToken = req.cookies?.refreshTokenAdmin;
@@ -176,35 +167,22 @@ class AdminController extends BaseController {
             if (!verifiedToken) {
                 return res.status(401).json({
                     statusCode: 401,
-                    message: 'Refresh token expire'
+                    message: 'Refresh token expired or invalid'
                 });
             }
 
-            const admin = await Admin.findById(verifiedToken?.id);
-            if (!admin) {
-                return res.status(401).json({
-                    statusCode: 401,
-                    message: 'Forbidden user'
-                });
-            }
+            // Cookie’ni o‘chirish
+            res.clearCookie('refreshTokenAdmin');
 
-            const payload = {
-                id: admin._id, role: admin.role, isActive: admin.isActive
-            }
-
-            const accessToken = token.generateAccessToken(payload);
             return res.status(200).json({
                 statusCode: 200,
-                message: 'success',
-                data: {
-                    token: accessToken
-                }
+                message: 'Successfully signed out'
             });
         } catch (error) {
             return res.status(500).json({
                 statusCode: 500,
-                message
-            })
+                message: error.message || 'Internal server error'
+            });
         }
     }
 }

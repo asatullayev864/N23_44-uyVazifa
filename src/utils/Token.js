@@ -1,7 +1,8 @@
-import { config } from '../config/index.js';
+import jwt from 'jsonwebtoken';
+import config from '../config/index.js';
 
 class Token {
-    generateAccesToken(payload) {
+    generateAccessToken(payload) {
         return jwt.sign(payload, config.TOKEN.ACCESS_KEY, {
             expiresIn: config.TOKEN.ACCESS_TIME
         });
@@ -13,16 +14,13 @@ class Token {
         });
     }
 
-    writeToCookie(res, key, value, expireDay) {
-        res.cookie(key, value, {
-            httpOnly: true,
-            secure: true,
-            maxAge: Number(expireDay) * 24 * 60 * 60 * 1000
-        });
-    }
-
-    verifyToken(token, secretKey) {
-        return jwt.verify(token, secretKey)
+    verifyToken(token, key) {
+        try {
+            return jwt.verify(token, key);
+        } catch (error) {
+            console.log('JWT Verify error:', error.message);
+            return null;
+        }
     }
 }
 

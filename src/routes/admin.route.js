@@ -1,14 +1,20 @@
 import { Router } from "express";
 import controller from '../controller/admin.controller.js';
+import { AuthGuard } from "../guards/auth.guard.js";
+import { RolesGuard } from "../guards/role.guard.js";
+import { validate } from "../middlewares/validate.js";
+import adminValidation from "../validation/adminValidation.js";
 
 const router = Router();
 
 router
-    .post('/', controller.createAdmin)
-    .post('/signin', controller.signIn)
-    .get('/', controller.findAll)
-    .get('/:id', controller.findById)
-    .patch('/:id', controller.update)
-    .delete('/:id', controller.delete)
+    .post('/',AuthGuard, RolesGuard('SUPERADMIN'), validate(adminValidation.create), controller.createAdmin)
+    .post('/signin',validate(adminValidation.signin), controller.signIn)
+    .post('/token', controller.generateNewToken)
+    .post('/signout',AuthGuard, controller.signOut)
+    .get('/',AuthGuard, RolesGuard('SUPERADMIN'), controller.findAll)
+    .get('/:id', AuthGuard, RolesGuard('SUPERADMIN', 'ID'), controller.findById)
+    .patch('/:id', AuthGuard, RolesGuard('SUPERADMIN', 'ID'), controller.update)
+    .delete('/:id', AuthGuard, RolesGuard('SUPERADMIN'), controller.delete)
 
 export default router;
