@@ -30,7 +30,7 @@ class AdminValidator {
                 'string.base': "Parol satr bo'lishi kerak",
                 'any.required': "Parol kiritilishi shart"
             }),
-        }).validate(data);
+        })
     }
 
     update(data) {

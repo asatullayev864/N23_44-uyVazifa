@@ -1,4 +1,6 @@
 import { isValidObjectId } from "mongoose";
+import { AppError } from "../error/AppError.js";
+import { successRes } from "../utils/success-res.js";
 
 // Barcha umumiy (base) CRUD amallarini bajaruvchi controller klassi
 export class BaseController {
@@ -7,85 +9,57 @@ export class BaseController {
     }
 
     // CREATE - yangi hujjat (document) yaratish
-    create = async (req, res) => {
+    create = async (req, res, next) => {
         try {
             const data = await this.model.create(req.body); // Yangi hujjat yaratish
-            return res.status(201).json({
-                statusCode: 201,
-                message: 'success',
-                data
-            });
+            return successRes(res, data, 201);
         } catch (error) {
             console.log(error); // Serverdagi xatolikni logga yozish
-            return res.status(500).json({
-                statusCode: 500,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     };
 
     // READ - barcha hujjatlarni olish
-    findAll = async (req, res) => {
+    findAll = async (req, res, next) => {
         try {
             const data = await this.model.find(); // Barcha hujjatlarni topish
-            return res.status(200).json({
-                statusCode: 200,
-                message: 'succes',
-                data
-            });
+            return successRes(res, data);
         } catch (error) {
-            return res.status(500).json({
-                statusCode: 500,
-                message: error.message
-            });
+            console.log(error.message);
+            next(error);
         }
     };
 
     // READ - bitta hujjatni ID orqali topish
-    findById = async (req, res) => {
+    findById = async (req, res, next) => {
         try {
             const id = req.params?.id;
 
             // ObjectId to'g'riligi tekshirilmoqda
             if (!isValidObjectId(id)) {
-                return res.status(400).json({
-                    statusCode: 400,
-                    message: 'Invalid ObjektId'
-                });
+                throw new AppError('Invalid ObjectId', 400);
             }
 
             const data = await this.model.findById(id); // ID bo‘yicha topish
 
             if (!data) {
-                return res.status(404).json({
-                    statusCode: 404,
-                    message: 'not found'
-                });
+                throw new AppError('Not found', 404);
             }
 
-            return res.status(200).json({
-                statusCode: 200,
-                message: 'succes',
-                data
-            });
+            return successRes(res, data);
         } catch (error) {
-            return res.status(500).json({
-                statusCode: 500,
-                message: error.message
-            });
+            console.log(error.message);
+            next(error);
         }
     };
 
     // UPDATE - mavjud hujjatni yangilash
-    update = async (req, res) => {
+    update = async (req, res, next) => {
         try {
             const id = req.params?.id;
 
             if (!isValidObjectId(id)) {
-                return res.status(400).json({
-                    statusCode: 404, // E’tibor bering: bu yerda statusCode `400` bo‘lishi kerak, lekin `404` yozilgan
-                    message: 'Invalid objectId'
-                });
+                throw new AppError('Invalid ObjectId', 400);
             }
 
             const data = await this.model.findByIdAndUpdate(id, req.body, {
@@ -94,57 +68,35 @@ export class BaseController {
             });
 
             if (!data) {
-                return res.status(404).json({
-                    statusCode: 404,
-                    message: 'not found by id'
-                });
+                throw new AppError('Not found', 404);
             }
 
-            return res.status(200).json({
-                statusCode: 200,
-                message: 'success',
-                data
-            });
+            return successRes(res, data);
         } catch (error) {
-            return res.status(500).json({
-                statusCode: 500,
-                message: error.message
-            });
+            console.log(error.message);
+            next(error);
         }
     };
 
     // DELETE - hujjatni o‘chirish
-    delete = async (req, res) => {
+    delete = async (req, res, next) => {
         try {
             const id = req.params?.id;
 
             if (!isValidObjectId(id)) {
-                return res.status(400).json({
-                    statusCode: 404, // Bu yer ham: `400` status bo‘lishi kerak
-                    message: 'Invalid objectId'
-                });
+                throw new AppError('Invalid ObjectId', 400)
             }
 
-            // ⚠️ XATO: bu yerda findByIdAndDelete bo‘lishi kerak edi
             const data = await this.model.findByIdAndDelete(id);
 
             if (!data) {
-                return res.status(404).json({
-                    statusCode: 404,
-                    message: 'not found by id'
-                });
+                throw new AppError('Not found', 404)
             }
 
-            return res.status(200).json({
-                statusCode: 200,
-                message: 'success',
-                data: {} // Bo‘sh obyekt qaytariladi
-            });
+            return successRes(res, {}); // Bo‘sh obyekt qaytariladi
         } catch (error) {
-            return res.status(500).json({
-                statusCode: 500,
-                message: error.message || "Internal server error",
-            });
+            console.log(error.message);
+            next(error);
         }
     };
 }

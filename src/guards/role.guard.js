@@ -1,4 +1,7 @@
 // RolesGuard - rollarga asoslangan ruxsatni tekshiruvchi middleware
+
+import { AppError } from "../error/AppError.js";
+
 // Masalan: RolesGuard('admin', 'moderator') yoki RolesGuard('ID')
 export const RolesGuard = (...roles) => {
     return async function (req, res, next) {
@@ -16,16 +19,10 @@ export const RolesGuard = (...roles) => {
             }
 
             // Aks holda, ruxsat yo‘q (Forbidden)
-            return res.status(403).json({
-                statusCode: 403,
-                message: 'Forbidden user' // Ruxsat etilmagan foydalanuvchi
-            });
+            throw new AppError('Forbidden user', 403); // Ruxsat etilmagan foydalanuvchi
         } catch (error) {
             // Xatolik yuz bersa, server xatosi bilan javob qaytaramiz
-            return res.status(500).json({
-                statusCode: 500,
-                message: error.message
-            });
+            next(error);
         }
     }
 }

@@ -1,4 +1,5 @@
 import config from '../config/index.js';      // Konfiguratsiya faylidan TOKEN kalitlarini olish
+import { AppError } from '../error/AppError.js';
 import token from '../utils/Token.js';        // Token bilan ishlovchi yordamchi funksiyalar
 
 // AuthGuard - JWT token orqali foydalanuvchini autentifikatsiya qiluvchi middleware
@@ -8,10 +9,7 @@ export const AuthGuard = async (req, res, next) => {
 
         // 1. Token mavjudligini tekshirish
         if (!auth) {
-            return res.status(401).json({
-                statusCode: 401,
-                message: 'Error authorization error' // Token yo‘q bo‘lsa
-            });
+            throw new AppError('Error authorization error', 401);  // Token yo‘q bo‘lsa
         }
 
         // 2. Bearer token formatini tekshirish
@@ -19,10 +17,7 @@ export const AuthGuard = async (req, res, next) => {
         const authToken = auth.split(' ')[1];  // Tokenning o‘zi
 
         if (bearer !== 'Bearer' || !authToken) {
-            return res.status(401).json({
-                statusCode: 401,
-                message: 'Unauthorized' // Format noto‘g‘ri bo‘lsa
-            });
+            throw new AppError('Unauthorized', 401);  // Format noto‘g‘ri bo‘lsa
         }
 
         // 3. Tokenni verify qilish
@@ -35,9 +30,6 @@ export const AuthGuard = async (req, res, next) => {
         next();
     } catch (error) {
         // Token noto‘g‘ri bo‘lsa yoki muddati tugagan bo‘lsa
-        return res.status(500).json({
-            statusCode: 500,
-            message: error.message
-        });
+        next(error);
     }
 }

@@ -4,30 +4,26 @@ import crypto from '../utils/Crypto.js';
 import validator from '../validation/adminValidation.js';
 import config from '../config/index.js';
 import token from '../utils/Token.js'; // ✅ token util import
+import { AppError } from '../error/AppError.js';
+import { successRes } from '../utils/success-res.js';
 
 class AdminController extends BaseController {
     constructor() {
         super(Admin);
     }
     // Admin create qilish 
-    async createAdmin(req, res) {
+    async createAdmin(req, res, next) {
         try {
             const { name, email, password, role } = req.body;
 
             const existsName = await Admin.findOne({ name });
             if (existsName) {
-                return res.status(409).json({
-                    statusCode: 409,
-                    message: 'Username already exists'
-                });
+                throw new AppError('Username already exists', 409);
             }
 
             const existsEmail = await Admin.findOne({ email });
             if (existsEmail) {
-                return res.status(409).json({
-                    statusCode: 409,
-                    message: 'Email address already exists'
-                });
+                throw new AppError('Email address already exists', 409);
             }
 
             const hashedPassword = await crypto.encrypt(password);
@@ -38,37 +34,24 @@ class AdminController extends BaseController {
                 role
             });
 
-            return res.status(201).json({
-                statusCode: 201,
-                message: 'success',
-                data: admin
-            });
+            return successRes(res, admin, 201);
         } catch (error) {
-            return res.status(500).json({
-                statusCode: 500,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 
     // Tizimga kirish
-    async signIn(req, res) {
+    async signIn(req, res, next) {
         try {
             const { name, password } = req.body;
             const admin = await Admin.findOne({ name });
             if (!admin) {
-                return res.status(400).json({
-                    statusCode: 400,
-                    message: 'Username or password incorrect'
-                });
+                throw new AppError('Username or password incorrect', 400);
             }
 
             const isMatchPassword = await crypto.decrypt(password, admin.password ?? '');
             if (!isMatchPassword) {
-                return res.status(400).json({
-                    statusCode: 400,
-                    message: 'Username or password incorrect'
-                });
+                throw new AppError('Username or password incorrect', 400);
             }
 
             const payload = {
@@ -86,27 +69,21 @@ class AdminController extends BaseController {
                 maxAge: 30 * 24 * 60 * 60 * 1000
             });
 
-            return res.status(200).json({
-                statusCode: 200,
-                message: 'success',
-                data: {
-                    token: accessToken,
-                    admin
-                }
+            return successRes(res, {
+                token: accessToken,
+                admin
             });
         } catch (error) {
-            return res.status(500).json({
-                statusCode: 500,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 
     // Yangi accessToken olish
-    async generateNewToken(req, res) {
+    async generateNewToken(req, res, next) {
         try {
             const refreshToken = req.cookies?.refreshTokenAdmin;
             if (!refreshToken) {
+
                 return res.status(401).json({
                     statusCode: 401,
                     message: 'Refresh token not found'
@@ -115,18 +92,12 @@ class AdminController extends BaseController {
 
             const verifiedToken = token.verifyToken(refreshToken, config.TOKEN.REFRESH_KEY);
             if (!verifiedToken) {
-                return res.status(401).json({
-                    statusCode: 401,
-                    message: 'Refresh token expired or invalid'
-                });
+                throw new AppError('Refresh token expired or invalid', 401);
             }
 
             const admin = await Admin.findById(verifiedToken?.id);
             if (!admin) {
-                return res.status(403).json({
-                    statusCode: 403,
-                    message: 'Forbidden user'
-                });
+                throw new AppError('Forbidden user', 403);
             }
 
             const payload = {
@@ -137,38 +108,25 @@ class AdminController extends BaseController {
 
             const accessToken = token.generateAccesToken(payload);
 
-            return res.status(200).json({
-                statusCode: 200,
-                message: 'success',
-                data: {
-                    token: accessToken
-                }
+            return successRes(res, {
+                token: accessToken
             });
         } catch (error) {
-            return res.status(500).json({
-                statusCode: 500,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 
     // Tizimdan chiqish
-    async signOut(req, res) {
+    async signOut(req, res, next) {
         try {
             const refreshToken = req.cookies?.refreshTokenAdmin;
             if (!refreshToken) {
-                return res.status(401).json({
-                    statusCode: 401,
-                    message: 'Refresh token not found'
-                });
+                throw new AppError('Refresh token not found', 401);
             }
 
             const verifiedToken = token.verifyToken(refreshToken, config.TOKEN.REFRESH_KEY);
             if (!verifiedToken) {
-                return res.status(401).json({
-                    statusCode: 401,
-                    message: 'Refresh token expired or invalid'
-                });
+                throw new AppError('Refresh token expired or invalid', 401);
             }
 
             // Cookie’ni o‘chirish
@@ -179,10 +137,7 @@ class AdminController extends BaseController {
                 message: 'Successfully signed out'
             });
         } catch (error) {
-            return res.status(500).json({
-                statusCode: 500,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 }
