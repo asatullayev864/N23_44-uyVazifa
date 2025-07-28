@@ -4,17 +4,18 @@ import { connectDB } from './db/index.js';
 import indexRouter from './routes/index.route.js';
 import cookieParser from 'cookie-parser';
 import { globalErrorHandle } from './error/global-error.handle.js';
-import { pageError } from './error/page-not-found.js';
+import helmet from 'helmet';
 
 const app = express();
 const PORT = config.PORT || 3000;
 
+app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 
 await connectDB();
 
-app.use('/api', pageError, indexRouter);
+app.use('/api', indexRouter);
 
 app.use(globalErrorHandle);
 
