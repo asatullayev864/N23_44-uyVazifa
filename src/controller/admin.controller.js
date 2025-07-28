@@ -30,7 +30,7 @@ class AdminController extends BaseController {
             const admin = await Admin.create({
                 name,
                 email,
-                password: hashedPassword,
+                hashedPassword: hashedPassword,
                 role
             });
 
@@ -49,7 +49,7 @@ class AdminController extends BaseController {
                 throw new AppError('Username or password incorrect', 400);
             }
 
-            const isMatchPassword = await crypto.decrypt(password, admin.password ?? '');
+            const isMatchPassword = await crypto.decrypt(password, admin.hashedPassword ?? '');
             if (!isMatchPassword) {
                 throw new AppError('Username or password incorrect', 400);
             }
@@ -74,6 +74,8 @@ class AdminController extends BaseController {
                 admin
             });
         } catch (error) {
+            console.log(error);
+
             next(error);
         }
     }
@@ -136,6 +138,57 @@ class AdminController extends BaseController {
                 statusCode: 200,
                 message: 'Successfully signed out'
             });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updateAdmin(req, res, next) {
+        try {
+            const { id } = req.params.id;
+            const admin = await BaseController.checkById(id);
+            const { name, email, password } = req.body;
+            if (name) {
+                const exists = await Admin.findOne({ name });
+                if (exists && exists.name !== name) {
+                    throw new AppError('Username already exists', 409);
+                }
+            }
+
+            if (email) {
+                const exists = await Admin.findOne({ email });
+                if (exists && exists.email !== email) {
+                    throw new AppError('Email addres already exists', 409);
+                }
+            }
+            let hashedPassword = admin.hashedPassword;
+            if (password) {
+                if (req.user?.role != admin.role) {
+                    throw new AppError('Not eccess to change password for admin', 403);
+                }
+                hashedPassword = await crypto.encrypt(password);
+            }
+            const updateAdmin = await Admin.findByIdAndUpdate(id, {
+                ...req.body, hashedPassword
+            }, { new: true });
+            return successRes(res, updateAdmin);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updatePasswordForAdmin(req, res, next) {
+        try {
+            const { id } = req.params.id;
+            const admin = await BaseController.checkById(Admin, id);
+            const { oldPassword, newPassword } = req.body;
+            const isMatchPassword = await crypto.decrypt(oldPassword, admin.hashedPassword);
+            if (!isMatchPassword) {
+                throw new AppError('Incorrect old password', 400);
+            }
+            const hashedPassword = await crypto.encrypt(newPassword);
+            const updateAdmin = await Admin.findByIdAndUpdate(id, { hashedPassword }, { new: true });
+            return successRes(res, this.updateAdmin);
         } catch (error) {
             next(error);
         }

@@ -36,10 +36,7 @@ export class BaseController {
             const id = req.params?.id;
 
             // ObjectId to'g'riligi tekshirilmoqda
-            if (!isValidObjectId(id)) {
-                throw new AppError('Invalid ObjectId', 400);
-            }
-
+            this.checkById(id);
             const data = await this.model.findById(id); // ID bo‘yicha topish
 
             if (!data) {
@@ -57,11 +54,7 @@ export class BaseController {
     update = async (req, res, next) => {
         try {
             const id = req.params?.id;
-
-            if (!isValidObjectId(id)) {
-                throw new AppError('Invalid ObjectId', 400);
-            }
-
+            this.checkById(id);
             const data = await this.model.findByIdAndUpdate(id, req.body, {
                 new: true, // Yangi (yangilangan) hujjat qaytarilsin
                 runValidators: true // Validatorlar ishlasin
@@ -82,11 +75,7 @@ export class BaseController {
     delete = async (req, res, next) => {
         try {
             const id = req.params?.id;
-
-            if (!isValidObjectId(id)) {
-                throw new AppError('Invalid ObjectId', 400)
-            }
-
+            await this.checkById(id);
             const data = await this.model.findByIdAndDelete(id);
 
             if (!data) {
@@ -99,4 +88,14 @@ export class BaseController {
             next(error);
         }
     };
+
+    static async checkById( schema,id) {
+        if (!isValidObjectId(id)) {
+            throw new AppError('Invalid ObjectId', 400);
+        }
+        const data = await schema.findById(id);
+        if (!data) {
+            throw new AppError('Not found', 404)
+        }
+    }
 }

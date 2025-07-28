@@ -11,7 +11,7 @@ const adminSchema = new Schema({
         unique: true,
         required: true
     },
-    password: {
+    hashedPassword: {
         type: String,
         required: true
     },

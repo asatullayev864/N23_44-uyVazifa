@@ -4,17 +4,19 @@ import { AuthGuard } from "../guards/auth.guard.js";
 import { RolesGuard } from "../guards/role.guard.js";
 import { validate } from "../middlewares/validate.js";
 import adminValidation from "../validation/adminValidation.js";
+import { requestLimiter } from "../utils/request-limit.js";
 
 const router = Router();
 
 router
-    .post('/',AuthGuard, RolesGuard('SUPERADMIN'), validate(adminValidation.create), controller.createAdmin)
-    .post('/signin',validate(adminValidation.signin), controller.signIn)
+    .post('/', AuthGuard, RolesGuard('SUPERADMIN'), validate(adminValidation.create), controller.createAdmin)
+    .post('/signin', requestLimiter(60, 10), validate(adminValidation.signin), controller.signIn)
     .post('/token', controller.generateNewToken)
-    .post('/signout',AuthGuard, controller.signOut)
-    .get('/',AuthGuard, RolesGuard('SUPERADMIN'), controller.findAll)
+    .post('/signout', AuthGuard, controller.signOut)
+    .get('/', AuthGuard, RolesGuard('SUPERADMIN'), controller.findAll)
     .get('/:id', AuthGuard, RolesGuard('SUPERADMIN', 'ID'), controller.findById)
-    .patch('/:id', AuthGuard, RolesGuard('SUPERADMIN', 'ID'), controller.update)
+    .patch('/password/:id', AuthGuard, RolesGuard('SUPERADMIN', 'ID'), validate(adminValidation.password), controller.updatePasswordForAdmin)
+    .patch('/:id', AuthGuard, RolesGuard('SUPERADMIN', 'ID'), validate(adminValidation.update), controller.update)
     .delete('/:id', AuthGuard, RolesGuard('SUPERADMIN'), controller.delete)
 
 export default router;

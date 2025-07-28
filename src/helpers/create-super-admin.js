@@ -24,7 +24,7 @@ import config from '../config/index.js';
         await Admin.create({
             name: config.SUPERADMIN.NAME,
             email: config.SUPERADMIN.EMAIL,
-            password: hashedPassword,
+            hashedPassword: hashedPassword,
             role: 'SUPERADMIN'
         });
 

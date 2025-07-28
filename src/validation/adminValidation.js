@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 class AdminValidator {
-    static passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    static passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_\-+=\[\]{};':"\\|,.<>\/?]{8,}$/;;
 
     create(data) {
         return Joi.object({
@@ -44,6 +44,15 @@ class AdminValidator {
             password: Joi.string().pattern(AdminValidator.passwordRegex).optional().messages({
                 'string.pattern.base': "Parol kamida 8 ta belgidan iborat bo'lib, unda kichik harf, katta harf, raqam va maxsus belgi bo'lishi kerak",
             }),
+        });
+    }
+
+    password() {
+        return Joi.object({
+            oldPassword: Joi.string().pattern(AdminValidator.passwordRegex).required().messages({
+                'string.pattern.base': "Parol kamida 8 ta belgidan iborat bo'lib, unda kichik harf, katta harf, raqam va maxsus belgi bo'lishi kerak",
+            }),
+            newPassword: Joi.string().pattern(AdminValidator.passwordRegex).required(),
         });
     }
 }
