@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import { roles } from "../const";
 
 const adminSchema = new Schema({
     name: {
@@ -17,8 +18,8 @@ const adminSchema = new Schema({
     },
     role: {
         type: String,
-        enum: ['SUPERADMIN', 'ADMIN'],
-        default: 'ADMIN'
+        enum: [roles.SUPERADMIN, roles.ADMIN],
+        default: roles.ADMIN
     },
     isActive: {
         type: Boolean,

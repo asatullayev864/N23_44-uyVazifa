@@ -5,12 +5,13 @@ import { RolesGuard } from "../guards/role.guard.js";
 import { validate } from "../middlewares/validate.js";
 import adminValidation from "../validation/adminValidation.js";
 import { requestLimiter } from "../utils/request-limit.js";
+import { roles } from "../const/index.js";
 
 const router = Router();
 
 router
     // POST
-    .post('/', AuthGuard, RolesGuard('SUPERADMIN'), validate(adminValidation.create), controller.createAdmin)
+    .post('/', AuthGuard, RolesGuard(roles.SUPERADMIN), validate(adminValidation.create), controller.createAdmin)
     .post('/signin', requestLimiter(60, 10), validate(adminValidation.signin), controller.signIn)
     .post('/token', controller.generateNewToken)
     .post('/signout', AuthGuard, controller.signOut)

@@ -10,6 +10,7 @@ import { disconnect } from 'mongoose';
 
 // Konfiguratsiyadagi super admin ma'lumotlarini olish
 import config from '../config/index.js';
+import { roles } from '../const/index.js';
 
 // Asinxron IIFE (Immediately Invoked Function Expression) - darhol bajariladigan funksiyani ishga tushirish
 (async function () {
@@ -25,7 +26,7 @@ import config from '../config/index.js';
             name: config.SUPERADMIN.NAME,
             email: config.SUPERADMIN.EMAIL,
             hashedPassword: hashedPassword,
-            role: 'SUPERADMIN'
+            role: roles.SUPERADMIN
         });
 
         // 4. Muvaffaqiyatli yaratilgani haqida xabar
