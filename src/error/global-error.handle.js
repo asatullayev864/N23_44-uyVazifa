@@ -1,9 +1,11 @@
 export const globalErrorHandle = (err, req, res, next) => {
-    const statusCode = err.statusCode;
-    const message = err.message;
+    console.log(err);
+    
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal server error';
     console.log(err);
     return res.status(statusCode).json({
-        statusCode: err.statusCode,
-        message: err.message
+        statusCode,
+        message
     });
 }

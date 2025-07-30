@@ -17,9 +17,15 @@ export default {
         REFRESH_TIME: String(process.env.REFRESH_TOKEN_TIME)
     },
     MAIL: {
-        MAIL_HOST: String(process.env.MAIL_HOST),
-        MAIL_PORT: String(process.env.MAIL_PORT),
-        MAIL_USER: String(process.env.MAIL_USER),
-        MAIL_PASS: String(process.env.MAIL_PASS)
-    }
+        HOST: String(process.env.MAIL_HOST),
+        PORT: Number(process.env.MAIL_PORT),
+        USER: String(process.env.MAIL_USER),
+        PASS: String(process.env.MAIL_PASS)
+    },
+    REDIS: {
+        HOST: Number(process.env.REDIS_HOST),
+        PORT: Number(process.env.REDIS_PORT),
+        PASSWORD: String(process.env.REDIS_PASS)
+    },
+    CONFIRM_PASSWORD_URL: String(process.env.CONFIRM_PASSWORD_URL)
 }

@@ -6,6 +6,9 @@ import config from '../config/index.js';
 import token from '../utils/Token.js'; // ✅ token util import
 import { AppError } from '../error/AppError.js';
 import { successRes } from '../utils/success-res.js';
+import { generateOTP } from '../utils/generate-otp.js';
+import { sendOTPtoMail } from '../utils/send-mail.js';
+import redis from '../utils/Redis.js';
 
 class AdminController extends BaseController {
     constructor() {
@@ -191,6 +194,64 @@ class AdminController extends BaseController {
             return successRes(res, this.updateAdmin);
         } catch (error) {
             next(error);
+        }
+    }
+
+    // Parolni unutgan bolsa 6 talik parol yuborish
+    async forgetPassword(req, res, next) {
+        try {
+            const { email } = req.body;
+            const admin = await Admin.findOne({ email });
+            console.log(admin);
+            if (!admin) {
+                throw new AppError('Email address id not found', 404);
+            }
+            const otp = generateOTP();
+            sendOTPtoMail(email, otp);
+            await redis.setData(email, otp);
+            console.log('OTP:', otp);
+            return successRes(res, {
+                email: email,
+                OTP: otp,
+                expireOTP: '5 minutes'
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Yoborilgan 6 talik parolni tekshirish va yangi password yaratishga otib yuborish
+    async confirmOTP(req, res, next) {
+        try {
+            const { email, otp } = req.body;
+            const checkOTP = await redis.getData(email);
+            if (checkOTP !== otp) {
+                throw new AppError('OTP incurrect or expired', 400);
+            }
+            await redis.deleteData(email);
+            return successRes(res, {
+                confirmPasswordURL: config.CONFIRM_PASSWORD_URL,
+                requesMethod: 'PATCH',
+                email
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Paroni tastiqlagandan kyn foydalanuvchi yangi password yaratish
+    async confirmPassword(req, res, next) {
+        try {
+            const { email, newPassword } = req.body;
+            const admin = await Admin.findOne({ email });
+            if (!email) {
+                throw new AppError('Email address not found', 404);
+            }
+            const hashedPassword = await crypto.encrypt(newPassword);
+            const updateAdmin = await Admin.findByIdAndUpdate(admin._id, { hashedPassword }, { new: true });
+            return successRes(res, updateAdmin);
+        } catch (error) {
+            
         }
     }
 }

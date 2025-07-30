@@ -2,25 +2,46 @@ import { Schema, model } from "mongoose";
 
 const OwnerSchema = new Schema({
     email: {
-        type: String
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true,
+        match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
     },
     userName: {
-        type: String
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        minlength: 3,
+        maxlength: 30
     },
     fullName: {
-        type: String
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 3,
+        maxlength: 100
     },
     isActive: {
-        type: Boolean
+        type: Boolean,
+        default: true
     },
     hashedPassword: {
-        type: String
+        type: String,
+        required: true,
+        select: false
     },
     wallet: {
-        type: Number
+        type: Number,
+        default: 0,
+        min: 0
     },
     experience: {
-        type: String
+        type: String,
+        default: 'Beginner',
+        enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert']
     }
 }, {
     timestamps: true,

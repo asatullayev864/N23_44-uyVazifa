@@ -20,7 +20,7 @@ class AdminValidator {
         });
     }
 
-    signin(data) {
+    signin() {
         return Joi.object({
             name: Joi.string().required().messages({
                 'string.base': "Ism satr bo'lishi kerak",
@@ -33,7 +33,7 @@ class AdminValidator {
         })
     }
 
-    update(data) {
+    update() {
         return Joi.object({
             name: Joi.string().optional().messages({
                 'string.base': "Ism satr bo'lishi kerak",
@@ -53,6 +53,30 @@ class AdminValidator {
                 'string.pattern.base': "Parol kamida 8 ta belgidan iborat bo'lib, unda kichik harf, katta harf, raqam va maxsus belgi bo'lishi kerak",
             }),
             newPassword: Joi.string().pattern(AdminValidator.passwordRegex).required(),
+        });
+    }
+
+    forgetPassword() {
+        return Joi.object({
+            email: Joi.string().email().required(),
+        });
+    }
+
+    confirmOTP() {
+        return Joi.object({
+            email: Joi.string().email().optional().messages({
+                'string.email': "Email noto'g'ri formatda kiritilgan",
+            }),
+            otp: Joi.string().length(6).required()
+        });
+    }
+
+    confirmPassword() {
+        return Joi.object({
+            email: Joi.string().email().optional().messages({
+                'string.email': "Email noto'g'ri formatda kiritilgan",
+            }),
+            newPassword: Joi.string().pattern(AdminValidator.passwordRegex).required()
         });
     }
 }

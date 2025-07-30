@@ -19,6 +19,8 @@ export const validate = (schemaValid) => {
             // 4. Agar hammasi to‘g‘ri bo‘lsa, keyingi middleware yoki controllerga o‘tkazish
             next();
         } catch (error) {
+            console.log(error);
+            
             // 5. Serverdagi boshqa xatoliklar uchun javob
             next(error);
         }
