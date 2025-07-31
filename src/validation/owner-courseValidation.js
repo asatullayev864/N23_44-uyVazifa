@@ -43,6 +43,19 @@ class OwnerValidator {
         });
     }
 
+    signin() {
+        return Joi.object({
+            email: Joi.string().email().required().messages({
+                'string.email': "Email noto'g'ri formatda kiritilgan",
+                'any.required': "Email kiritilishi shart"
+            }),
+            hashedPassword: Joi.string().pattern(OwnerValidator.passwordRegex).required().messages({
+                'string.pattern.base': "Parol kamida 8 ta belgidan iborat bo'lib, unda kichik harf, katta harf, raqam va maxsus belgi bo'lishi kerak",
+                'any.required': "Parol kiritilishi shart"
+            })
+        });
+    }
+
     update() {
         return Joi.object({
             email: Joi.string().email().optional().messages({
@@ -76,6 +89,12 @@ class OwnerValidator {
                 }),
 
             isActive: Joi.boolean().optional()
+        });
+    }
+
+    wallet() {
+        return Joi.object({
+            wallet: Joi.number().min(0).required()
         });
     }
 }

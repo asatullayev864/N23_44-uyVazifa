@@ -17,7 +17,7 @@ class AdminController extends BaseController {
     // Admin create qilish 
     async createAdmin(req, res, next) {
         try {
-            const { name, email, password, role } = req.body;
+            const { name, email, password } = req.body;
 
             const existsName = await Admin.findOne({ name });
             if (existsName) {
@@ -33,8 +33,7 @@ class AdminController extends BaseController {
             const admin = await Admin.create({
                 name,
                 email,
-                hashedPassword: hashedPassword,
-                role
+                hashedPassword: hashedPassword
             });
 
             return successRes(res, admin, 201);
@@ -251,7 +250,7 @@ class AdminController extends BaseController {
             const updateAdmin = await Admin.findByIdAndUpdate(admin._id, { hashedPassword }, { new: true });
             return successRes(res, updateAdmin);
         } catch (error) {
-            
+
         }
     }
 }

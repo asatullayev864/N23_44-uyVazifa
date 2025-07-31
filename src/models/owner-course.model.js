@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-const OwnerSchema = new Schema({
+const OwnerCourseSchema = new Schema({
     email: {
         type: String,
         required: true,
@@ -48,5 +48,5 @@ const OwnerSchema = new Schema({
     versionKey: false
 });
 
-const Owner = model('Owner', OwnerSchema);
-export default Owner;
+const OwnerCourse = model('OwnerCourse', OwnerCourseSchema);
+export default OwnerCourse;

@@ -4,14 +4,15 @@ import { successRes } from "../utils/success-res.js";
 
 // Barcha umumiy (base) CRUD amallarini bajaruvchi controller klassi
 export class BaseController {
-    constructor(model) {
+    constructor(model, populateFields = {}) {
         this.model = model; // Controllerga model (mongoose model) kiritiladi
+        this.populateFields = populateFields;
     }
 
     // CREATE - yangi hujjat (document) yaratish
     create = async (req, res, next) => {
         try {
-            const data = await this.model.create(req.body); // Yangi hujjat yaratish
+            const data = await this.model.create(req.body);
             return successRes(res, data, 201);
         } catch (error) {
             console.log(error); // Serverdagi xatolikni logga yozish
@@ -20,9 +21,14 @@ export class BaseController {
     };
 
     // READ - barcha hujjatlarni olish
-    findAll = async (req, res, next) => {
+    findAll = async (_, res, next) => {
         try {
             const data = await this.model.find(); // Barcha hujjatlarni topish
+            if (this.populateFields.length) {
+                for (let populateField of this.populateFields) {
+                    data = data.populate(populateField);
+                }
+            }
             return successRes(res, data);
         } catch (error) {
             console.log(error.message);
