@@ -1,7 +1,6 @@
 import Admin from '../models/admin.model.js';
 import { BaseController } from './base.controller.js';
 import crypto from '../utils/Crypto.js';
-import validator from '../validation/adminValidation.js';
 import config from '../config/index.js';
 import token from '../utils/Token.js'; // ✅ token util import
 import { AppError } from '../error/AppError.js';

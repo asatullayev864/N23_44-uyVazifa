@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { roles } from "../const";
+import roles from "../const/index.js";
 
 const adminSchema = new Schema({
     name: {

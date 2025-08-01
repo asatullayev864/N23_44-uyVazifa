@@ -10,7 +10,7 @@ import { disconnect } from 'mongoose';
 
 // Konfiguratsiyadagi super admin ma'lumotlarini olish
 import config from '../config/index.js';
-import { roles } from '../const/index.js';
+import roles from '../const/index.js';
 
 // Asinxron IIFE (Immediately Invoked Function Expression) - darhol bajariladigan funksiyani ishga tushirish
 (async function () {

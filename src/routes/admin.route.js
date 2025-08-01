@@ -5,7 +5,7 @@ import { RolesGuard } from "../guards/role.guard.js";
 import { validate } from "../middlewares/validate.js";
 import adminValidation from "../validation/adminValidation.js";
 import { requestLimiter } from "../utils/request-limit.js";
-import { roles } from "../const/index.js";
+import roles from "../const/index.js";
 
 const router = Router();
 
