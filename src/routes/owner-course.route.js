@@ -6,6 +6,8 @@ import ownerCourseController from "../controller/owner-course.controller.js";
 
 const router = Router();
 
+
+
 router
     .post('/', controller.createOwnerCourse)
     .post('/signin', validate(ownerCourseController.signin), controller.signin)

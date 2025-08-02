@@ -11,6 +11,7 @@ class OwnerCourseController extends BaseController {
         super(OwnerCourse);
     }
 
+
     async createOwnerCourse(req, res, next) {
         try {
             const { email, userName, fullName, isActive, password, wallet, expirience } = req.body;
@@ -37,6 +38,8 @@ class OwnerCourseController extends BaseController {
             next(error);
         }
     }
+
+
 
     async signin(req, res, next) {
         try {
@@ -69,6 +72,8 @@ class OwnerCourseController extends BaseController {
             next(error);
         }
     }
+
+
 
     async generateNewToken(req, res, next) {
         try {
@@ -106,6 +111,8 @@ class OwnerCourseController extends BaseController {
             next(error);
         }
     }
+
+
 
     async signOut(req, res, next) {
         try {

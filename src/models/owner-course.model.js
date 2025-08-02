@@ -47,5 +47,7 @@ const OwnerCourseSchema = new Schema({
     versionKey: false
 });
 
+
+
 const OwnerCourse = model('OwnerCourse', OwnerCourseSchema);
 export default OwnerCourse;

@@ -43,6 +43,7 @@ class OwnerValidator {
         });
     }
 
+
     signin() {
         return Joi.object({
             email: Joi.string().email().required().messages({
