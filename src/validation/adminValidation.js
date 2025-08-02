@@ -22,7 +22,8 @@ class AdminValidator {
 
     signin() {
         return Joi.object({
-            name: Joi.string().required().messages({
+            name: Joi.string().min(2).required().messages({
+                'string.empty': `"name" bo'sh bo'lishi mumkin emas`,
                 'string.base': "Ism satr bo'lishi kerak",
                 'any.required': "Ism kiritilishi shart"
             }),

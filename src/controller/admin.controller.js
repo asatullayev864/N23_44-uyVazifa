@@ -8,6 +8,7 @@ import { successRes } from '../utils/success-res.js';
 import { generateOTP } from '../utils/generate-otp.js';
 import { sendOTPtoMail } from '../utils/send-mail.js';
 import redis from '../utils/Redis.js';
+import logger from '../helpers/log/logger.js';
 
 class AdminController extends BaseController {
     constructor() {
@@ -70,6 +71,7 @@ class AdminController extends BaseController {
                 maxAge: 30 * 24 * 60 * 60 * 1000
             });
 
+            logger.info('Admin signed in successfully');
             return successRes(res, {
                 token: accessToken,
                 admin
