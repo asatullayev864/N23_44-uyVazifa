@@ -49,7 +49,7 @@ class OwnerValidator {
                 'string.email': "Email noto'g'ri formatda kiritilgan",
                 'any.required': "Email kiritilishi shart"
             }),
-            hashedPassword: Joi.string().pattern(OwnerValidator.passwordRegex).required().messages({
+            password: Joi.string().pattern(OwnerValidator.passwordRegex).required().messages({
                 'string.pattern.base': "Parol kamida 8 ta belgidan iborat bo'lib, unda kichik harf, katta harf, raqam va maxsus belgi bo'lishi kerak",
                 'any.required': "Parol kiritilishi shart"
             })

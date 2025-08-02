@@ -1,9 +1,13 @@
-import { extname, join } from 'path';
+import { extname, join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { existsSync, mkdirSync } from 'fs';
 import multer from 'multer';
 import { v4 } from 'uuid';
 
-const uploadDir = join(__dirnamem, '../../uploads');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const uploadDir = join(__dirname, '../../uploads');
 
 if (!existsSync(uploadDir)) {
     mkdirSync(uploadDir, { recursive: true });
@@ -20,4 +24,4 @@ const storage = multer.diskStorage({
     }
 });
 
-export const upload = multer({ storage });
+export const uploadFile = multer({ storage });
