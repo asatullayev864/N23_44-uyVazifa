@@ -47,9 +47,9 @@ export async function application(app) {
 
 
 
-        app.use(expressWinston.errorLogger({
-            winstonInstance: logger
-        }));
+        // app.use(expressWinston.errorLogger({
+        //     winstonInstance: logger
+        // }));
 
         // Global xatoliklarni tutuvchi middleware — bu oxirgi bo‘lib yozilishi kerak
         app.use(globalErrorHandle);

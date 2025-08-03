@@ -11,9 +11,7 @@ const customTime = winston.format((info) => {
 const logger = winston.createLogger({
     transports: [
         // Faylga log yozish
-        new winston.transports.File({ filename: 'log/error.log', level: 'error' }),
-        new winston.transports.File({ filename: 'log/combined.log' }),
-        new winston.transports.File({ filename: 'log/info.log', level: 'info' }),
+        new winston.transports.File({ filename: 'log/error.log', level: 'error' })
 
         // MongoDB ga log yozish [ hozircha o‘chirib qo‘yilgan ]
         // new winston.transports.MongoDB({
@@ -24,7 +22,7 @@ const logger = winston.createLogger({
     ],
     format: winston.format.combine(
         customTime(),
-        winston.format.json()
+        winston.format.prettyPrint()
     )
 });
 
